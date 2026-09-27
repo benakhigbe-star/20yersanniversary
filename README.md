@@ -133,7 +133,44 @@ See `supabase/migrations/0001_init.sql` for the full schema and
   in-memory counter, because Vercel serverless functions don't share memory
   between invocations (an in-memory limiter resets on every cold start).
 
-## 6. Local setup
+## 6. Getting demo data + an admin login onto your deployed site
+
+You have two options here. **If you're not comfortable with a terminal, use
+Option A** — it needs nothing but a web browser.
+
+### Option A — No terminal, just the Supabase SQL Editor
+
+Requires the migrations (`0001_init.sql`, `0002_rls.sql`) to already be run.
+
+1. Open `supabase/seed/seed.sql` in this repo (view it on GitHub, or open it
+   in any text/code editor — you're just reading and editing plain text).
+2. Near the top, edit these three lines to your own details:
+   ```sql
+   v_admin_email    text := 'you@example.com';
+   v_admin_password text := 'ChangeThisPassword123';
+   v_admin_name     text := 'Your Name';
+   ```
+   Use a plain password (letters/numbers, no unusual symbols) and keep the
+   quotes around each value exactly as they are.
+3. Copy the **entire file**, paste it into your Supabase project's SQL
+   Editor, and click **Run**.
+4. Refresh your Vercel site. You should now see the real event name and be
+   able to log in as `sarah.thompson@example.com` (or any of the 10 seeded
+   guests — see the file for the full list). Log into `/admin/login` with
+   the email/password you set in step 2.
+
+Re-running the script later is safe: it resets the demo guest/event data
+to a clean state and updates your admin password to whatever's in the file
+at the time — it won't create duplicate admins or guests.
+
+### Option B — Terminal + Node.js scripts
+
+Only worth it if you're already comfortable with git/npm, want programmatic
+CSV-style seeding, or plan to customize the seed data significantly (it's
+easier to edit `scripts/seed.ts` in TypeScript than the SQL version). See
+"Local setup" below, then run `npm run seed` and `npm run create-admin`.
+
+## 7. Local setup (for running the app itself, not just seeding it)
 
 ### Prerequisites
 - Node.js 18.18+
@@ -197,7 +234,7 @@ npm run lint        # next lint
 npm run build       # production build
 ```
 
-## 7. Deploying to Vercel
+## 8. Deploying to Vercel
 
 1. Push this repo to GitHub (see below).
 2. In Vercel: **New Project** → import the repo.
@@ -205,14 +242,13 @@ npm run build       # production build
    **Project Settings → Environment Variables** (all of them — Vercel does
    not read `.env.local`). Do this for Production, Preview, and Development.
 4. Deploy. Vercel auto-detects Next.js — no build command changes needed.
-5. Run `npm run seed` and `npm run create-admin` **locally** against the same
-   Supabase project (they use the service-role key directly, not the deployed
-   app) — or wire them into a one-off script runner if you prefer not to run
-   them from your machine.
+5. Seed demo data and create your admin login using **Option A or B from
+   section 6 above** — both work directly against your Supabase project,
+   independent of how the Next.js app itself is deployed.
 6. Once deployed, share the URL with your guests. On iPhone/Android they can
    tap "Add to Home Screen" — see `/guide` in the app for the walkthrough.
 
-## 8. Known simplifications (so you don't mistake them for bugs)
+## 9. Known simplifications (so you don't mistake them for bugs)
 
 - **Images are URLs, not uploads.** Profile photos, activity photos, logo,
   hero image are all plain URL fields (paste a link — Unsplash, Imgur, your
@@ -233,7 +269,7 @@ npm run build       # production build
   The schema supports many events; there's no admin UI yet to switch
   between them (would be a natural v2: a subdomain or path per event).
 
-## 9. Security checklist (what's implemented)
+## 10. Security checklist (what's implemented)
 
 - Emails normalized (trim + lowercase) before every comparison
 - Rate limiting on both login endpoints (DB-backed, survives cold starts)
@@ -251,7 +287,7 @@ npm run build       # production build
 - RLS enabled on every table; CSV import validates email format and checks
   duplicates (within file and against the DB) before writing anything
 
-## 10. Tech stack
+## 11. Tech stack
 
 Next.js 14 (App Router) · TypeScript · Tailwind CSS · Supabase (Postgres +
 service-role API access) · `jose` (JWT sessions) · `bcryptjs` (admin

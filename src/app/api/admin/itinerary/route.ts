@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdminSession, jsonError } from '@/lib/api-helpers';
+import { requireAdminSession, jsonError, requireCurrentEvent } from '@/lib/api-helpers';
 import { itineraryDayInputSchema } from '@/lib/validation';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getCurrentEvent } from '@/lib/event';
 
 export async function GET() {
   const guard = await requireAdminSession();
   if ('error' in guard) return guard.error;
-  const event = await getCurrentEvent();
+  const eventResult = await requireCurrentEvent();
+  if ('error' in eventResult) return eventResult.error;
+  const { event } = eventResult;
   const { data } = await supabaseAdmin().from('itinerary_days').select('*').eq('event_id', event.id).order('day_number');
   return NextResponse.json({ days: data ?? [] });
 }
@@ -17,7 +18,9 @@ export async function POST(req: NextRequest) {
   if ('error' in guard) return guard.error;
   const parsed = itineraryDayInputSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return jsonError(400, parsed.error.issues[0]?.message ?? 'Invalid itinerary day.');
-  const event = await getCurrentEvent();
+  const eventResult = await requireCurrentEvent();
+  if ('error' in eventResult) return eventResult.error;
+  const { event } = eventResult;
   const payload = { ...parsed.data, date: parsed.data.date || null, event_id: event.id };
   const { data, error } = await supabaseAdmin()
     .from('itinerary_days')

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdminSession, jsonError } from '@/lib/api-helpers';
+import { requireAdminSession, jsonError, requireCurrentEvent } from '@/lib/api-helpers';
 import { eventSettingsInputSchema } from '@/lib/validation';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getCurrentEvent, getCurrentEventSettings } from '@/lib/event';
+import { getCurrentEventSettings } from '@/lib/event';
 
 export async function GET() {
   const guard = await requireAdminSession();
   if ('error' in guard) return guard.error;
-  const event = await getCurrentEvent();
+  const eventResult = await requireCurrentEvent();
+  if ('error' in eventResult) return eventResult.error;
+  const { event } = eventResult;
   const settings = await getCurrentEventSettings(event.id);
   return NextResponse.json({ event, settings });
 }
@@ -43,7 +45,9 @@ export async function PUT(req: NextRequest) {
   const parsed = eventSettingsInputSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return jsonError(400, parsed.error.issues[0]?.message ?? 'Invalid settings.');
 
-  const event = await getCurrentEvent();
+  const eventResult = await requireCurrentEvent();
+  if ('error' in eventResult) return eventResult.error;
+  const { event } = eventResult;
   const input = parsed.data;
 
   const eventUpdate: Record<string, unknown> = {};

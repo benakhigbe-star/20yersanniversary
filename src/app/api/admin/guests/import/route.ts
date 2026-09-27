@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdminSession, jsonError } from '@/lib/api-helpers';
+import { requireAdminSession, jsonError, requireCurrentEvent } from '@/lib/api-helpers';
 import { parseAndValidateGuestCsv } from '@/lib/csv';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getCurrentEvent } from '@/lib/event';
 import { logActivity } from '@/lib/activity-log';
 
 /**
@@ -18,7 +17,9 @@ export async function POST(req: NextRequest) {
   if (!body?.csv || typeof body.csv !== 'string') return jsonError(400, 'Missing CSV content.');
   const commit = body.commit === true;
 
-  const event = await getCurrentEvent();
+  const eventResult = await requireCurrentEvent();
+  if ('error' in eventResult) return eventResult.error;
+  const { event } = eventResult;
 
   const { data: existingGuests } = await supabaseAdmin().from('guests').select('email_normalized').eq('event_id', event.id);
   const existingEmails = new Set(((existingGuests ?? []) as { email_normalized: string }[]).map((g) => g.email_normalized));

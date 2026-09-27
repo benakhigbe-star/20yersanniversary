@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { requireAdminSession } from '@/lib/api-helpers';
+import { requireAdminSession, requireCurrentEvent } from '@/lib/api-helpers';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getCurrentEvent } from '@/lib/event';
 import { guestsToCsv } from '@/lib/csv';
 import type { Guest } from '@/types/db';
 
@@ -9,7 +8,9 @@ export async function GET() {
   const guard = await requireAdminSession();
   if ('error' in guard) return guard.error;
 
-  const event = await getCurrentEvent();
+  const eventResult = await requireCurrentEvent();
+  if ('error' in eventResult) return eventResult.error;
+  const { event } = eventResult;
   const { data } = await supabaseAdmin().from('guests').select('*').eq('event_id', event.id).order('last_name');
   const csv = guestsToCsv((data ?? []) as unknown as Guest[]);
 

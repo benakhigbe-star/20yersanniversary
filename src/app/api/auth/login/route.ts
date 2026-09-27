@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { loginSchema } from '@/lib/validation';
 import { normalizeEmail } from '@/lib/utils';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getCurrentEvent } from '@/lib/event';
+import { requireCurrentEvent } from '@/lib/api-helpers';
 import { checkRateLimit, recordLoginAttempt } from '@/lib/rate-limit';
 import { createGuestSessionToken, setGuestSessionCookie } from '@/lib/auth/guest';
 import { logActivity } from '@/lib/activity-log';
@@ -30,7 +30,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const event = await getCurrentEvent();
+  const eventResult = await requireCurrentEvent();
+  if ('error' in eventResult) return eventResult.error;
+  const { event } = eventResult;
 
   const { data: guest } = await supabaseAdmin()
     .from('guests')

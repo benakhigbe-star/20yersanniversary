@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdminSession, jsonError } from '@/lib/api-helpers';
-import { getCurrentEvent } from '@/lib/event';
+import { requireAdminSession, jsonError, requireCurrentEvent } from '@/lib/api-helpers';
 import { getResponseTracking } from '@/lib/admin-data';
 import { rowsToCsv } from '@/lib/csv';
 import { supabaseAdmin } from '@/lib/supabase/admin';
@@ -12,7 +11,9 @@ export async function GET(req: NextRequest) {
   const requestId = req.nextUrl.searchParams.get('request_id');
   if (!requestId) return jsonError(400, 'Missing request_id.');
 
-  const event = await getCurrentEvent();
+  const eventResult = await requireCurrentEvent();
+  if ('error' in eventResult) return eventResult.error;
+  const { event } = eventResult;
   const rows = await getResponseTracking(event.id, requestId);
   const { data: request } = await supabaseAdmin().from('information_requests').select('title').eq('id', requestId).single();
 

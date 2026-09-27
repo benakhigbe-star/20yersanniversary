@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+body {
+  @apply bg-midnight-950 text-white antialiased;
+}
+
+::selection {
+  @apply bg-ocean-400/40 text-white;
+}
+
+.glass-card {
+  @apply bg-white/[0.06] backdrop-blur-xl border border-white/10 shadow-card;
+}
+
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

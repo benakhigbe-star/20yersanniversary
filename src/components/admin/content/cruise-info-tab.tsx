@@ -16,6 +16,7 @@ export function CruiseInfoTab() {
   });
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/settings')
@@ -35,7 +36,17 @@ export function CruiseInfoTab() {
 
   async function save() {
     setSaved(false);
-    await fetch('/api/admin/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) });
+    setError(null);
+    const res = await fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      setError(data?.error ?? 'Could not save. Please try again.');
+      return;
+    }
     setSaved(true);
   }
 
@@ -68,6 +79,7 @@ export function CruiseInfoTab() {
           Save Cruise Info
         </button>
         {saved && <span className="text-sm text-green-400">Saved ✓</span>}
+        {error && <span className="text-sm text-red-400">{error}</span>}
       </div>
     </div>
   );

@@ -23,6 +23,7 @@ type Fields = Pick<
 export function SettingsManager() {
   const [values, setValues] = useState<Fields | null>(null);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/settings')
@@ -54,7 +55,17 @@ export function SettingsManager() {
   async function save() {
     if (!values) return;
     setSaved(false);
-    await fetch('/api/admin/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) });
+    setError(null);
+    const res = await fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      setError(data?.error ?? 'Could not save settings. Please try again.');
+      return;
+    }
     setSaved(true);
   }
 
@@ -94,6 +105,7 @@ export function SettingsManager() {
           Save Settings
         </button>
         {saved && <span className="text-sm text-green-400">Saved ✓</span>}
+        {error && <span className="text-sm text-red-400">{error}</span>}
       </div>
     </div>
   );

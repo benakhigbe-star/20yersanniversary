@@ -25,6 +25,7 @@ export function AppGuideTab() {
   const [tips, setTips] = useState<TipDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/app-guide')
@@ -45,7 +46,8 @@ export function AppGuideTab() {
 
   async function save() {
     setSaved(false);
-    await fetch('/api/admin/app-guide', {
+    setError(null);
+    const res = await fetch('/api/admin/app-guide', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -58,6 +60,11 @@ export function AppGuideTab() {
         tips: tips.filter((t) => t.tip.trim()).map((t, i) => ({ ...t, display_order: i })),
       }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      setError(data?.error ?? 'Could not save. Please try again.');
+      return;
+    }
     setSaved(true);
   }
 
@@ -133,6 +140,7 @@ export function AppGuideTab() {
           Save App Guide
         </button>
         {saved && <span className="text-sm text-green-400">Saved ✓</span>}
+        {error && <span className="text-sm text-red-400">{error}</span>}
       </div>
     </div>
   );

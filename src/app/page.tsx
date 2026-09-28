@@ -1,6 +1,11 @@
 import { LoginForm } from '@/components/login-form';
 import { getCurrentEvent } from '@/lib/event';
 
+// Without this, Next.js prerenders this page once at build time and freezes
+// whatever the event's name/cruise line were at that moment — admin edits
+// via Settings would silently never appear until the next deploy.
+export const dynamic = 'force-dynamic';
+
 export default async function LandingPage() {
   const event = await getCurrentEvent().catch(() => null);
 

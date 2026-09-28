@@ -21,6 +21,7 @@ export const requestOptionInputSchema = z.object({
   label: z.string().trim().min(1).max(200),
   value: z.string().trim().min(1).max(200),
   display_order: z.number().int().min(0).default(0),
+  image_url: z.string().trim().url().optional().nullable().or(z.literal('')),
 });
 
 export const informationRequestInputSchema = z.object({

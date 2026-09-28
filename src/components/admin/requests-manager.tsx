@@ -51,7 +51,7 @@ export function RequestsManager() {
       },
       options: values.options
         .filter((o) => o.label.trim())
-        .map((o, i) => ({ id: o.id, label: o.label, value: o.value || o.label, display_order: i })),
+        .map((o, i) => ({ id: o.id, label: o.label, value: o.value || o.label, display_order: i, image_url: o.image_url || null })),
     };
     const res = await fetch(url, {
       method: isNew ? 'POST' : 'PATCH',

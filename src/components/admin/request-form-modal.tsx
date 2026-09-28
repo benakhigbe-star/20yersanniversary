@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import Image from 'next/image';
+import { Plus, Trash2, ImagePlus, X } from 'lucide-react';
 import type { InformationRequest, QuestionType, RequestOption } from '@/types/db';
 
 const QUESTION_TYPES: { value: QuestionType; label: string }[] = [
@@ -22,6 +23,7 @@ interface OptionDraft {
   id?: string;
   label: string;
   value: string;
+  image_url?: string | null;
 }
 
 export interface RequestFormValues {
@@ -40,7 +42,7 @@ export interface RequestFormValues {
 }
 
 function toDraftOptions(options: RequestOption[]): OptionDraft[] {
-  return options.map((o) => ({ id: o.id, label: o.label, value: o.value }));
+  return options.map((o) => ({ id: o.id, label: o.label, value: o.value, image_url: o.image_url }));
 }
 
 export function RequestFormModal({
@@ -87,6 +89,29 @@ export function RequestFormModal({
   );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+
+  async function uploadOptionImage(idx: number, file: File) {
+    setUploadingIndex(idx);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? 'Could not upload image.');
+        return;
+      }
+      const next = [...values.options];
+      next[idx] = { ...next[idx], image_url: data.url };
+      set('options', next);
+    } catch {
+      setError('Network error uploading image — please try again.');
+    } finally {
+      setUploadingIndex(null);
+    }
+  }
 
   function set<K extends keyof RequestFormValues>(key: K, value: RequestFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -180,23 +205,68 @@ export function RequestFormModal({
                   <Plus size={13} /> Add option
                 </button>
               </div>
+              {(values.question_type === 'radio' || values.question_type === 'checkboxes') && (
+                <p className="mb-2 text-xs text-slate-500">
+                  Add a photo per option (e.g. a colour swatch) and guests will see a picture grid instead of plain
+                  buttons. Dropdown/multiple choice show text only.
+                </p>
+              )}
               <div className="space-y-2">
                 {values.options.map((opt, idx) => (
-                  <div key={idx} className="flex gap-2">
+                  <div key={idx} className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 p-2">
+                    {opt.image_url ? (
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md">
+                        <Image src={opt.image_url} alt={opt.label} fill className="object-cover" unoptimized />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = [...values.options];
+                            next[idx] = { ...opt, image_url: null };
+                            set('options', next);
+                          }}
+                          className="absolute right-0 top-0 rounded-bl bg-black/60 p-0.5 text-white"
+                          title="Remove photo"
+                        >
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label
+                        className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-md border border-dashed border-slate-600 text-slate-500 hover:border-ocean-400 hover:text-ocean-400"
+                        title="Upload photo"
+                      >
+                        {uploadingIndex === idx ? (
+                          <span className="text-[9px]">…</span>
+                        ) : (
+                          <ImagePlus size={16} />
+                        )}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
+                          className="hidden"
+                          disabled={uploadingIndex !== null}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadOptionImage(idx, file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                    )}
                     <input
                       value={opt.label}
-                      placeholder="Label (e.g. XL)"
+                      placeholder="Label (e.g. Navy Blue)"
                       onChange={(e) => {
                         const next = [...values.options];
                         next[idx] = { ...opt, label: e.target.value, value: opt.value || e.target.value };
                         set('options', next);
                       }}
-                      className="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white"
+                      className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
                     />
                     <button
                       type="button"
                       onClick={() => set('options', values.options.filter((_, i) => i !== idx))}
-                      className="rounded-lg border border-slate-700 px-2 text-slate-400"
+                      className="rounded-lg border border-slate-700 px-2 py-2 text-slate-400"
                     >
                       <Trash2 size={14} />
                     </button>

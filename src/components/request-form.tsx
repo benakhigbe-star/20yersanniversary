@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, Lock } from 'lucide-react';
+import Image from 'next/image';
+import { CheckCircle2, Lock, Check } from 'lucide-react';
 import { formatDate, cn } from '@/lib/utils';
 import { requestIcon, answerSummary, type AnswerLike } from '@/lib/request-display';
 import type { InformationRequest, RequestOption } from '@/types/db';
@@ -212,7 +213,22 @@ function FieldInput({
           ))}
         </select>
       );
-    case 'radio':
+    case 'radio': {
+      const hasPhotos = options.some((o) => o.image_url);
+      if (hasPhotos) {
+        return (
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            {options.map((o) => (
+              <OptionPhotoCard
+                key={o.id}
+                option={o}
+                selected={singleOption === o.id}
+                onClick={() => setSingleOption(o.id)}
+              />
+            ))}
+          </div>
+        );
+      }
       return (
         <div className="grid grid-cols-2 gap-2">
           {options.map((o) => (
@@ -232,7 +248,59 @@ function FieldInput({
           ))}
         </div>
       );
-    case 'checkboxes':
+    }
+    case 'checkboxes': {
+      const hasPhotos = options.some((o) => o.image_url);
+      if (hasPhotos) {
+        return (
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            {options.map((o) => {
+              const checked = selectedOptionIds.includes(o.id);
+              return (
+                <OptionPhotoCard
+                  key={o.id}
+                  option={o}
+                  selected={checked}
+                  onClick={() =>
+                    setSelectedOptionIds(
+                      checked ? selectedOptionIds.filter((id) => id !== o.id) : [...selectedOptionIds, o.id]
+                    )
+                  }
+                />
+              );
+            })}
+          </div>
+        );
+      }
+      return (
+        <div className="space-y-2">
+          {options.map((o) => {
+            const checked = selectedOptionIds.includes(o.id);
+            return (
+              <label
+                key={o.id}
+                className={cn(
+                  'tap-target flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-2.5 text-sm transition',
+                  checked ? 'border-ocean-400 bg-ocean-500/20 text-white' : 'border-white/15 bg-white/5 text-white/70'
+                )}
+              >
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-ocean-500"
+                  checked={checked}
+                  onChange={() =>
+                    setSelectedOptionIds(
+                      checked ? selectedOptionIds.filter((id) => id !== o.id) : [...selectedOptionIds, o.id]
+                    )
+                  }
+                />
+                {o.label}
+              </label>
+            );
+          })}
+        </div>
+      );
+    }
     case 'multiple_choice':
       return (
         <div className="space-y-2">
@@ -265,4 +333,31 @@ function FieldInput({
     default:
       return null;
   }
+}
+
+function OptionPhotoCard({ option, selected, onClick }: { option: RequestOption; selected: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'group overflow-hidden rounded-xl2 border-2 text-left transition',
+        selected ? 'border-ocean-400' : 'border-white/10'
+      )}
+    >
+      <div className="relative aspect-square w-full bg-white/5">
+        {option.image_url && (
+          <Image src={option.image_url} alt={option.label} fill className="object-cover" unoptimized />
+        )}
+        {selected && (
+          <span className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ocean-500 text-white shadow">
+            <Check size={14} strokeWidth={3} />
+          </span>
+        )}
+      </div>
+      <p className={cn('px-2 py-1.5 text-center text-xs font-medium', selected ? 'text-white' : 'text-white/70')}>
+        {option.label}
+      </p>
+    </button>
+  );
 }

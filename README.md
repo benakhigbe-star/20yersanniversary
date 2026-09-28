@@ -20,6 +20,11 @@ deployable to Vercel.
   (text, number, dropdown, radio, checkboxes, yes/no, date, multiple choice)
   from the admin without touching code. T-shirt/shoe/trouser size are just
   the three requests seeded by default, not hardcoded special cases.
+- **Photo-based option pickers** — for a Radio or Checkboxes information
+  request, admin can attach an actual uploaded photo to each option (e.g. a
+  colour swatch per scarf/t-shirt/cap option) and guests pick from a photo
+  grid instead of a text list. Real upload to Supabase Storage, not a
+  paste-a-URL field — see `/api/admin/upload`.
 - **Kids & teens without their own login** — from `/actions`, a guest can add
   their children as "dependents" and answer information requests (sizes,
   dietary needs, anything) on each child's behalf. No email/account needed
@@ -145,8 +150,8 @@ Option A** — it needs nothing but a web browser.
 
 ### Option A — No terminal, just the Supabase SQL Editor
 
-Requires all three migrations (`0001_init.sql`, `0002_rls.sql`,
-`0003_dependents.sql`) to already be run.
+Requires all four migrations (`0001_init.sql`, `0002_rls.sql`,
+`0003_dependents.sql`, `0004_option_images.sql`) to already be run.
 
 1. Open `supabase/seed/seed.sql` in this repo (view it on GitHub, or open it
    in any text/code editor — you're just reading and editing plain text).
@@ -197,11 +202,11 @@ easier to edit `scripts/seed.ts` in TypeScript than the SQL version). See
    (Project Settings → API).
 
 3. **Run the migrations, in order**, via the Supabase SQL Editor: paste and
-   run each of `supabase/migrations/0001_init.sql`, then `0002_rls.sql`,
-   then `0003_dependents.sql`. (Or use the Supabase CLI: `supabase link`
-   then `supabase db push`.) If you already ran 0001/0002 before
-   `0003_dependents.sql` existed, just run that one file now — it only adds
-   new tables, it's safe to run on top of an already-seeded database.
+   run each of `supabase/migrations/0001_init.sql`, `0002_rls.sql`,
+   `0003_dependents.sql`, then `0004_option_images.sql`. (Or use the
+   Supabase CLI: `supabase link` then `supabase db push`.) If you already
+   ran earlier ones, just run whichever new-numbered files you're missing —
+   each is additive and safe to run on top of an already-seeded database.
 
 4. **Configure environment variables**
    ```bash
@@ -258,11 +263,13 @@ npm run build       # production build
 
 ## 9. Known simplifications (so you don't mistake them for bugs)
 
-- **Images are URLs, not uploads.** Profile photos, activity photos, logo,
-  hero image are all plain URL fields (paste a link — Unsplash, Imgur, your
-  own hosting, whatever). Wiring up Supabase Storage uploads is a natural
-  next step but wasn't required for a working v1 and adds bucket/policy
-  setup the brief didn't ask for.
+- **Most images are still URLs, not uploads** — profile photos, activity
+  photos, logo, hero image are plain URL fields (paste a link). The one
+  exception is information-request option photos (e.g. scarf/shirt colour
+  swatches), which do real upload to Supabase Storage — see
+  `/api/admin/upload` and `supabase/migrations/0004_option_images.sql`.
+  Extending real upload to the other image fields would reuse that same
+  endpoint.
 - **`npm audit` will show Next.js advisories.** Several relate to Server
   Actions (this app uses plain Route Handlers, not `"use server"` actions)
   and the built-in Image Optimizer (the one place this app renders external

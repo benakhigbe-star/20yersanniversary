@@ -128,6 +128,7 @@ export interface RequestOption {
   label: string;
   value: string;
   display_order: number;
+  image_url: string | null;
 }
 
 export interface GuestResponse {

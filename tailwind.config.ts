@@ -54,7 +54,7 @@ const config: Config = {
         body: ['var(--font-body)', 'sans-serif'],
       },
       backgroundImage: {
-        'ocean-gradient': 'linear-gradient(135deg, #0f4a70 0%, #12a3f0 45%, #7ddaff 100%)',
+        'ocean-gradient': 'linear-gradient(135deg, #0b3a5a 0%, #0d78b0 45%, #2f7dae 100%)',
         'sunset-gradient': 'linear-gradient(135deg, #440f06 0%, #ee480a 50%, #ffb072 100%)',
         'champagne-gradient': 'linear-gradient(135deg, #6b401c 0%, #d99a2b 55%, #f4e1ab 100%)',
       },

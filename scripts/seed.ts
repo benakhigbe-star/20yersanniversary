@@ -52,7 +52,9 @@ async function main() {
       return_date: returnDate.toISOString().slice(0, 10),
       return_port: 'Miami, Florida',
       logo_url: null,
-      hero_image_url: null,
+      // Real photo of Wonder of the Seas (the ship named above), Wikimedia
+      // Commons, CC BY-SA — verified to actually load before using it here.
+      hero_image_url: 'https://upload.wikimedia.org/wikipedia/commons/0/09/Wonder_of_the_Seas_Jan_30_2025.jpg',
       welcome_message: "We can't wait to celebrate with you at sea! Everything you need for the trip lives right here.",
       theme_color: '#0f4a70',
       is_active: true,

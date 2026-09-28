@@ -51,12 +51,15 @@ BEGIN
   INSERT INTO events (
     slug, name, cruise_name, cruise_line, ship_name, departure_port,
     departure_date, departure_time, return_date, return_port,
-    welcome_message, theme_color, is_active
+    welcome_message, theme_color, hero_image_url, is_active
   ) VALUES (
     v_event_slug, 'Sarah & Mike''s Cruise Party 2026', 'Caribbean Escape', 'Royal Caribbean', 'Wonder of the Seas',
     'Miami, Florida', v_departure, '16:00', v_return, 'Miami, Florida',
     'We can''t wait to celebrate with you at sea! Everything you need for the trip lives right here.',
-    '#0f4a70', true
+    '#0f4a70',
+    -- Real photo of Wonder of the Seas, Wikimedia Commons, CC BY-SA — verified to load before using it here.
+    'https://upload.wikimedia.org/wikipedia/commons/0/09/Wonder_of_the_Seas_Jan_30_2025.jpg',
+    true
   )
   RETURNING id INTO v_event_id;
 

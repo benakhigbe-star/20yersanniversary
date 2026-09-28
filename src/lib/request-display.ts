@@ -1,4 +1,8 @@
-import type { InformationRequest, RequestOption, GuestResponse } from '@/types/db';
+import type { InformationRequest, RequestOption } from '@/types/db';
+
+/** Structural shape shared by GuestResponse and DependentResponse — this
+ * function only ever reads these two fields, so it works for either. */
+export type AnswerLike = { answer_text: string | null; selected_option_id: string | null };
 
 const DEFAULT_ICONS: Record<InformationRequest['question_type'], string> = {
   short_text: '📝',
@@ -18,7 +22,7 @@ export function requestIcon(request: InformationRequest): string {
 
 export function answerSummary(
   request: InformationRequest,
-  response: GuestResponse | null,
+  response: AnswerLike | null,
   options: RequestOption[],
   selectedOptionIds: string[]
 ): string | null {

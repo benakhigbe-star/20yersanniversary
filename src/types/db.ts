@@ -141,6 +141,28 @@ export interface GuestResponse {
   updated_at: string;
 }
 
+export type DependentAgeCategory = 'child' | 'teen';
+
+export interface GuestDependent {
+  id: string;
+  guest_id: string;
+  first_name: string;
+  last_name: string | null;
+  age_category: DependentAgeCategory;
+  created_at: string;
+}
+
+export interface DependentResponse {
+  id: string;
+  event_id: string;
+  request_id: string;
+  dependent_id: string;
+  answer_text: string | null;
+  selected_option_id: string | null;
+  submitted_at: string;
+  updated_at: string;
+}
+
 export interface Activity {
   id: string;
   event_id: string;

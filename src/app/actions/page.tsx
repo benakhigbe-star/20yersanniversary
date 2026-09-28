@@ -3,10 +3,14 @@ import {
   getActiveRequestsWithOptions,
   getGuestResponses,
   getGuestResponseOptionIds,
+  getGuestDependents,
+  getDependentResponses,
+  getDependentResponseOptionIds,
 } from '@/lib/guest-data';
 import { PageShell } from '@/components/page-shell';
 import { GuestHeader } from '@/components/guest-header';
 import { RequestForm } from '@/components/request-form';
+import { DependentsManager } from '@/components/dependents-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +20,24 @@ export default async function ActionsPage() {
   const responses = await getGuestResponses(guest.id);
   const responseOptionIds = await getGuestResponseOptionIds(responses.map((r) => r.id));
   const responseByRequest = new Map(responses.map((r) => [r.request_id, r]));
+
+  const dependents = await getGuestDependents(guest.id);
+  const dependentResponses = await getDependentResponses(dependents.map((d) => d.id));
+  const dependentResponseOptionIds = await getDependentResponseOptionIds(dependentResponses.map((r) => r.id));
+
+  const initialByDependent: Record<
+    string,
+    Record<string, { response: { id: string; answer_text: string | null; selected_option_id: string | null; submitted_at: string; updated_at: string } | null; selectedOptionIds: string[] }>
+  > = {};
+  for (const dep of dependents) {
+    initialByDependent[dep.id] = {};
+    for (const response of dependentResponses.filter((r) => r.dependent_id === dep.id)) {
+      initialByDependent[dep.id][response.request_id] = {
+        response,
+        selectedOptionIds: dependentResponseOptionIds.get(response.id) ?? [],
+      };
+    }
+  }
 
   const sorted = [...requests].sort((a, b) => a.display_order - b.display_order);
   const outstanding = sorted.filter((r) => r.is_required && !responseByRequest.get(r.id));
@@ -49,6 +71,17 @@ export default async function ActionsPage() {
           );
         })}
       </div>
+
+      {sorted.length > 0 && (
+        <div className="px-5 pt-6">
+          <DependentsManager
+            initialDependents={dependents}
+            requests={sorted}
+            optionsByRequestEntries={Array.from(optionsByRequest.entries())}
+            initialByDependent={initialByDependent}
+          />
+        </div>
+      )}
     </PageShell>
   );
 }

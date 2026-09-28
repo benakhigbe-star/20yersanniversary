@@ -115,8 +115,15 @@ export default async function AdminResponsesPage({
               </thead>
               <tbody className="divide-y divide-slate-800">
                 {filteredRows.map((r) => (
-                  <tr key={r.guestId} className="text-slate-200">
-                    <td className="px-3 py-2.5">{r.name}</td>
+                  <tr key={r.rowId} className="text-slate-200">
+                    <td className="px-3 py-2.5">
+                      {r.name}
+                      {r.isDependent && (
+                        <span className="ml-1.5 rounded-full bg-ocean-500/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-ocean-300">
+                          Dependent
+                        </span>
+                      )}
+                    </td>
                     <td className="px-3 py-2.5 text-slate-400">{r.email}</td>
                     <td className="px-3 py-2.5">{r.answer ?? '—'}</td>
                     <td className="px-3 py-2.5">

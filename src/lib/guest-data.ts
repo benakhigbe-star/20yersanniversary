@@ -10,6 +10,8 @@ import type {
   InformationRequest,
   RequestOption,
   GuestResponse,
+  GuestDependent,
+  DependentResponse,
   PackingItem,
   GuestPackingStatus,
   Announcement,
@@ -120,6 +122,37 @@ export async function getMasterPackingList(eventId: string): Promise<PackingItem
 export async function getGuestPackingStatus(guestId: string): Promise<GuestPackingStatus[]> {
   const { data } = await supabaseAdmin().from('guest_packing_status').select('*').eq('guest_id', guestId);
   return (data ?? []) as unknown as GuestPackingStatus[];
+}
+
+export async function getGuestDependents(guestId: string): Promise<GuestDependent[]> {
+  const { data } = await supabaseAdmin()
+    .from('guest_dependents')
+    .select('*')
+    .eq('guest_id', guestId)
+    .order('created_at', { ascending: true });
+  return (data ?? []) as unknown as GuestDependent[];
+}
+
+export async function getDependentResponses(dependentIds: string[]): Promise<DependentResponse[]> {
+  if (dependentIds.length === 0) return [];
+  const { data } = await supabaseAdmin().from('dependent_responses').select('*').in('dependent_id', dependentIds);
+  return (data ?? []) as unknown as DependentResponse[];
+}
+
+export async function getDependentResponseOptionIds(responseIds: string[]): Promise<Map<string, string[]>> {
+  if (responseIds.length === 0) return new Map();
+  const { data } = await supabaseAdmin()
+    .from('dependent_response_options')
+    .select('response_id, option_id')
+    .in('response_id', responseIds);
+
+  const map = new Map<string, string[]>();
+  for (const row of (data ?? []) as { response_id: string; option_id: string }[]) {
+    const list = map.get(row.response_id) ?? [];
+    list.push(row.option_id);
+    map.set(row.response_id, list);
+  }
+  return map;
 }
 
 export async function getActivities(eventId: string): Promise<Activity[]> {

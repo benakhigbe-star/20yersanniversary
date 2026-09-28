@@ -3,17 +3,22 @@
 import { useState } from 'react';
 import { CheckCircle2, Lock } from 'lucide-react';
 import { formatDate, cn } from '@/lib/utils';
-import { requestIcon, answerSummary } from '@/lib/request-display';
-import type { InformationRequest, RequestOption, GuestResponse } from '@/types/db';
+import { requestIcon, answerSummary, type AnswerLike } from '@/lib/request-display';
+import type { InformationRequest, RequestOption } from '@/types/db';
+
+type ResponseLike = AnswerLike & { id: string; submitted_at: string; updated_at: string };
 
 interface Props {
   request: InformationRequest;
   options: RequestOption[];
-  initialResponse: GuestResponse | null;
+  initialResponse: ResponseLike | null;
   initialSelectedOptionIds: string[];
+  /** When set, this form answers on behalf of a dependent (child/teen)
+   * rather than the logged-in guest — posts to a different endpoint. */
+  dependentId?: string;
 }
 
-export function RequestForm({ request, options, initialResponse, initialSelectedOptionIds }: Props) {
+export function RequestForm({ request, options, initialResponse, initialSelectedOptionIds, dependentId }: Props) {
   const [response, setResponse] = useState(initialResponse);
   const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(initialSelectedOptionIds);
   const [text, setText] = useState(initialResponse?.answer_text ?? '');
@@ -32,12 +37,13 @@ export function RequestForm({ request, options, initialResponse, initialSelected
     setError(null);
 
     const body: Record<string, unknown> = { request_id: request.id };
+    if (dependentId) body.dependent_id = dependentId;
     if (isMultiSelect) body.selected_option_ids = selectedOptionIds;
     else if (isSingleOption) body.selected_option_id = singleOption || null;
     else body.answer_text = text;
 
     try {
-      const res = await fetch('/api/responses', {
+      const res = await fetch(dependentId ? '/api/dependent-responses' : '/api/responses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -51,9 +57,6 @@ export function RequestForm({ request, options, initialResponse, initialSelected
       setStatus('idle');
       setResponse({
         id: response?.id ?? 'saved',
-        event_id: request.event_id,
-        request_id: request.id,
-        guest_id: '',
         answer_text: isMultiSelect || isSingleOption ? null : text,
         selected_option_id: isSingleOption ? singleOption : null,
         submitted_at: response?.submitted_at ?? new Date().toISOString(),

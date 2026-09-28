@@ -20,6 +20,11 @@ deployable to Vercel.
   (text, number, dropdown, radio, checkboxes, yes/no, date, multiple choice)
   from the admin without touching code. T-shirt/shoe/trouser size are just
   the three requests seeded by default, not hardcoded special cases.
+- **Kids & teens without their own login** — from `/actions`, a guest can add
+  their children as "dependents" and answer information requests (sizes,
+  dietary needs, anything) on each child's behalf. No email/account needed
+  for the child; admin response tracking counts them alongside guests
+  automatically.
 - Per-request response tracking (submitted/outstanding, CSV export)
 - Activities, party schedule, cruise itinerary, announcements, useful
   links/documents, packing checklist (all admin-editable)
@@ -140,7 +145,8 @@ Option A** — it needs nothing but a web browser.
 
 ### Option A — No terminal, just the Supabase SQL Editor
 
-Requires the migrations (`0001_init.sql`, `0002_rls.sql`) to already be run.
+Requires all three migrations (`0001_init.sql`, `0002_rls.sql`,
+`0003_dependents.sql`) to already be run.
 
 1. Open `supabase/seed/seed.sql` in this repo (view it on GitHub, or open it
    in any text/code editor — you're just reading and editing plain text).
@@ -190,10 +196,12 @@ easier to edit `scripts/seed.ts` in TypeScript than the SQL version). See
    note your Project URL, `anon` public key, and `service_role` key
    (Project Settings → API).
 
-3. **Run the migrations.** Easiest via the Supabase SQL Editor: paste and run
-   `supabase/migrations/0001_init.sql`, then `supabase/migrations/0002_rls.sql`,
-   in order. (Or use the Supabase CLI: `supabase link` then
-   `supabase db push` if you prefer.)
+3. **Run the migrations, in order**, via the Supabase SQL Editor: paste and
+   run each of `supabase/migrations/0001_init.sql`, then `0002_rls.sql`,
+   then `0003_dependents.sql`. (Or use the Supabase CLI: `supabase link`
+   then `supabase db push`.) If you already ran 0001/0002 before
+   `0003_dependents.sql` existed, just run that one file now — it only adds
+   new tables, it's safe to run on top of an already-seeded database.
 
 4. **Configure environment variables**
    ```bash

@@ -44,6 +44,16 @@ export const responseSubmitSchema = z.object({
   selected_option_ids: z.array(z.string().uuid()).optional(),
 });
 
+export const dependentInputSchema = z.object({
+  first_name: z.string().trim().min(1).max(100),
+  last_name: z.string().trim().max(100).optional().nullable(),
+  age_category: z.enum(['child', 'teen']).default('child'),
+});
+
+export const dependentResponseSubmitSchema = responseSubmitSchema.extend({
+  dependent_id: z.string().uuid(),
+});
+
 export const guestInputSchema = z.object({
   first_name: z.string().trim().min(1).max(100),
   last_name: z.string().trim().min(1).max(100),

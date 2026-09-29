@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { PartyPopper, CalendarDays, Luggage, Smartphone, MapPin } from 'lucide-react';
 import { LoginForm } from '@/components/login-form';
 import { Countdown } from '@/components/countdown';
@@ -114,7 +115,11 @@ export default async function LandingPage() {
         </div>
 
         <p className="mt-8 text-center text-xs text-white/50">
-          Not on the list yet? Contact the organiser to get added.
+          Not on the list yet?{' '}
+          <Link href="/invitation" className="font-medium text-white underline decoration-white/40 underline-offset-2">
+            Request an invite
+          </Link>
+          .
         </p>
       </div>
     </main>

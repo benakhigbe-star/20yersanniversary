@@ -17,6 +17,7 @@ export interface DashboardStats {
   totalGuests: number;
   profileComplete: number;
   outstandingActions: number;
+  pendingInvitations: number;
   requestStats: Array<{ request: InformationRequest; submitted: number; total: number }>;
 }
 
@@ -78,7 +79,19 @@ export async function getDashboardStats(eventId: string): Promise<DashboardStats
     total: typedGuests.length + dependentIds.length,
   }));
 
-  return { totalGuests: typedGuests.length, profileComplete, outstandingActions, requestStats };
+  const { count: pendingInvitations } = await supabaseAdmin()
+    .from('signup_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('event_id', eventId)
+    .eq('status', 'pending');
+
+  return {
+    totalGuests: typedGuests.length,
+    profileComplete,
+    outstandingActions,
+    pendingInvitations: pendingInvitations ?? 0,
+    requestStats,
+  };
 }
 
 export interface TrackingRow {

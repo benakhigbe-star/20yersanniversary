@@ -267,6 +267,14 @@ BEGIN
     (v_appguide_id, 'Enable notifications so you never miss a reservation reminder.', 1);
 
   -- --------------------------------------------------------------------------
+  -- Sample pending invitation requests (people the organiser didn't have emails for)
+  -- --------------------------------------------------------------------------
+  INSERT INTO signup_requests (event_id, first_name, last_name, email, email_normalized, note) VALUES
+    (v_event_id, 'Marcus', 'Bell', 'marcus.bell@example.com', 'marcus.bell@example.com', 'I''m Jess''s plus-one, she said to sign up here!');
+  INSERT INTO signup_requests (event_id, first_name, last_name, preferred_name, email, email_normalized) VALUES
+    (v_event_id, 'Tasha', 'Reid', 'Tash', 'tasha.reid@example.com', 'tasha.reid@example.com');
+
+  -- --------------------------------------------------------------------------
   -- Sample activity log (admin dashboard "recent activity" feed)
   -- --------------------------------------------------------------------------
   INSERT INTO activity_log (event_id, guest_id, action_type, message)

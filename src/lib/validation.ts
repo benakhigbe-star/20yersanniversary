@@ -45,6 +45,14 @@ export const responseSubmitSchema = z.object({
   selected_option_ids: z.array(z.string().uuid()).optional(),
 });
 
+export const invitationSubmitSchema = z.object({
+  first_name: z.string().trim().min(1).max(100),
+  last_name: z.string().trim().min(1).max(100),
+  preferred_name: z.string().trim().max(100).optional().nullable(),
+  email: z.string().trim().email().max(254),
+  note: z.string().trim().max(1000).optional().nullable(),
+});
+
 export const dependentInputSchema = z.object({
   first_name: z.string().trim().min(1).max(100),
   last_name: z.string().trim().max(100).optional().nullable(),

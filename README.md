@@ -14,7 +14,11 @@ deployable to Vercel.
 
 ## 1. What you get
 
-- Passwordless guest login (email only, admin preloads the guest list)
+- Passwordless guest login (email only, admin preloads the guest list) — plus
+  a public **`/invitation`** request form for people the admin doesn't have
+  an email for yet. Submitting it never creates a login by itself; it queues
+  a request the admin approves or declines from Admin → Invitation Requests,
+  and only approval creates the real guest record.
 - Personal guest dashboard with a countdown, progress bar, and action cards
 - A **dynamic information-request builder** — create any question type
   (text, number, dropdown, radio, checkboxes, yes/no, date, multiple choice)
@@ -150,8 +154,9 @@ Option A** — it needs nothing but a web browser.
 
 ### Option A — No terminal, just the Supabase SQL Editor
 
-Requires all four migrations (`0001_init.sql`, `0002_rls.sql`,
-`0003_dependents.sql`, `0004_option_images.sql`) to already be run.
+Requires all five migrations (`0001_init.sql`, `0002_rls.sql`,
+`0003_dependents.sql`, `0004_option_images.sql`, `0005_invitations.sql`) to
+already be run.
 
 1. Open `supabase/seed/seed.sql` in this repo (view it on GitHub, or open it
    in any text/code editor — you're just reading and editing plain text).
@@ -203,8 +208,8 @@ easier to edit `scripts/seed.ts` in TypeScript than the SQL version). See
 
 3. **Run the migrations, in order**, via the Supabase SQL Editor: paste and
    run each of `supabase/migrations/0001_init.sql`, `0002_rls.sql`,
-   `0003_dependents.sql`, then `0004_option_images.sql`. (Or use the
-   Supabase CLI: `supabase link` then `supabase db push`.) If you already
+   `0003_dependents.sql`, `0004_option_images.sql`, then `0005_invitations.sql`.
+   (Or use the Supabase CLI: `supabase link` then `supabase db push`.) If you already
    ran earlier ones, just run whichever new-numbered files you're missing —
    each is additive and safe to run on top of an already-seeded database.
 

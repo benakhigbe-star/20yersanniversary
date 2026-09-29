@@ -6,6 +6,7 @@ import { useState } from 'react';
 import {
   LayoutDashboard,
   Users,
+  UserPlus,
   ListChecks,
   BarChart3,
   PartyPopper,
@@ -22,6 +23,7 @@ import { cn } from '@/lib/utils';
 const items = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/guests', label: 'Guests', icon: Users },
+  { href: '/admin/invitations', label: 'Invitation Requests', icon: UserPlus },
   { href: '/admin/requests', label: 'Information Requests', icon: ListChecks },
   { href: '/admin/responses', label: 'Responses', icon: BarChart3 },
   { href: '/admin/activities', label: 'Activities', icon: PartyPopper },

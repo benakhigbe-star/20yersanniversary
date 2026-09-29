@@ -4,6 +4,8 @@ import { supabaseAdmin } from './supabase/admin';
 const WINDOW_MINUTES = 15;
 const MAX_ATTEMPTS = 8;
 
+export type RateLimitKind = 'guest' | 'admin' | 'invitation';
+
 /**
  * DB-backed rate limiting (an in-memory counter would reset on every
  * serverless cold start, which is most of the time on Vercel). Cheap to
@@ -11,7 +13,7 @@ const MAX_ATTEMPTS = 8;
  */
 export async function checkRateLimit(
   identifier: string,
-  kind: 'guest' | 'admin'
+  kind: RateLimitKind
 ): Promise<{ allowed: boolean; retryAfterMinutes?: number }> {
   const since = new Date(Date.now() - WINDOW_MINUTES * 60 * 1000).toISOString();
 
@@ -37,7 +39,7 @@ export async function checkRateLimit(
 
 export async function recordLoginAttempt(
   identifier: string,
-  kind: 'guest' | 'admin',
+  kind: RateLimitKind,
   succeeded: boolean
 ) {
   await supabaseAdmin().from('login_attempts').insert({ identifier, kind, succeeded });

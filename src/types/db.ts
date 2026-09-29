@@ -142,6 +142,24 @@ export interface GuestResponse {
   updated_at: string;
 }
 
+export type SignupRequestStatus = 'pending' | 'approved' | 'rejected';
+
+export interface SignupRequest {
+  id: string;
+  event_id: string;
+  first_name: string;
+  last_name: string;
+  preferred_name: string | null;
+  email: string;
+  email_normalized: string;
+  note: string | null;
+  status: SignupRequestStatus;
+  guest_id: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+}
+
 export type DependentAgeCategory = 'child' | 'teen';
 
 export interface GuestDependent {

@@ -13,6 +13,7 @@ export default async function AdminDashboardPage() {
     { label: 'Total Guests', value: stats.totalGuests },
     { label: 'Profile Complete', value: stats.profileComplete },
     { label: 'Outstanding Actions', value: stats.outstandingActions },
+    { label: 'Pending Invitations', value: stats.pendingInvitations, href: '/admin/invitations' },
     ...stats.requestStats.slice(0, 4).map((r) => ({
       label: `${r.request.title} Responses`,
       value: `${r.submitted}/${r.total}`,
@@ -25,12 +26,27 @@ export default async function AdminDashboardPage() {
       <p className="mt-1 text-sm text-slate-400">{event.name}</p>
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {cards.map((c) => (
-          <div key={c.label} className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-            <p className="text-xs uppercase tracking-wide text-slate-500">{c.label}</p>
-            <p className="mt-1 text-2xl font-bold text-white">{c.value}</p>
-          </div>
-        ))}
+        {cards.map((c) => {
+          const content = (
+            <>
+              <p className="text-xs uppercase tracking-wide text-slate-500">{c.label}</p>
+              <p className="mt-1 text-2xl font-bold text-white">{c.value}</p>
+            </>
+          );
+          return 'href' in c && c.href ? (
+            <Link
+              key={c.label}
+              href={c.href}
+              className="rounded-xl border border-slate-800 bg-slate-900 p-4 transition hover:border-ocean-500/50"
+            >
+              {content}
+            </Link>
+          ) : (
+            <div key={c.label} className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              {content}
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">

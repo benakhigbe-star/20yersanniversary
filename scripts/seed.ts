@@ -394,6 +394,27 @@ async function main() {
     );
   }
 
+  // --- Sample pending invitation requests (people the organiser didn't have emails for) ---
+  await supabase.from('signup_requests').insert([
+    {
+      event_id: eventId,
+      first_name: 'Marcus',
+      last_name: 'Bell',
+      email: 'marcus.bell@example.com',
+      email_normalized: 'marcus.bell@example.com',
+      note: "I'm Jess's plus-one, she said to sign up here!",
+    },
+    {
+      event_id: eventId,
+      first_name: 'Tasha',
+      last_name: 'Reid',
+      preferred_name: 'Tash',
+      email: 'tasha.reid@example.com',
+      email_normalized: 'tasha.reid@example.com',
+      note: null,
+    },
+  ]);
+
   // --- Activity log (sample "recent activity" feed) -----------------------
   await supabase.from('activity_log').insert([
     { event_id: eventId, guest_id: guests[0].id, action_type: 'response_submitted', message: `${guests[0].preferred_name} submitted their T-shirt size.` },

@@ -11,6 +11,7 @@ export function ItineraryTab() {
   const [days, setDays] = useState<ItineraryDay[]>([]);
   const [draft, setDraft] = useState<Draft>(empty);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch('/api/admin/itinerary');
@@ -24,15 +25,35 @@ export function ItineraryTab() {
 
   async function addDay() {
     setSaving(true);
-    await fetch('/api/admin/itinerary', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(draft) });
-    setSaving(false);
-    setDraft({ ...empty, day_number: draft.day_number + 1 });
-    load();
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/itinerary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(data?.error ?? 'Could not save this day. Please try again.');
+        return;
+      }
+      setDraft({ ...empty, day_number: draft.day_number + 1 });
+      await load();
+    } catch {
+      setError('Network error — please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function remove(day: ItineraryDay) {
     if (!confirm(`Remove Day ${day.day_number} (${day.port_name})?`)) return;
-    await fetch(`/api/admin/itinerary/${day.id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/itinerary/${day.id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      setError(data?.error ?? 'Could not remove this day.');
+      return;
+    }
     load();
   }
 
@@ -61,12 +82,13 @@ export function ItineraryTab() {
           <TextField label="Arrival" type="time" value={draft.arrival_time ?? ''} onChange={(v) => setDraft((d) => ({ ...d, arrival_time: v }))} />
           <TextField label="Departure" type="time" value={draft.departure_time ?? ''} onChange={(v) => setDraft((d) => ({ ...d, departure_time: v }))} />
         </div>
+        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
         <button
           onClick={addDay}
           disabled={saving || !draft.port_name}
           className="mt-3 flex items-center gap-1.5 rounded-lg bg-ocean-500 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
         >
-          <Plus size={15} /> Save Day
+          <Plus size={15} /> {saving ? 'Saving…' : 'Save Day'}
         </button>
       </div>
     </div>

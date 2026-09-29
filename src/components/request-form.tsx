@@ -27,7 +27,8 @@ export function RequestForm({ request, options, initialResponse, initialSelected
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  const locked = !!response && !request.allow_edit_after_submit;
+  const deadlinePassed = !!request.deadline && new Date(request.deadline).getTime() < Date.now();
+  const locked = (!!response && !request.allow_edit_after_submit) || deadlinePassed;
   const isMultiSelect = request.question_type === 'checkboxes' || request.question_type === 'multiple_choice';
   const isSingleOption = request.question_type === 'dropdown' || request.question_type === 'radio';
   const sizingSystem = typeof request.config?.sizing_system === 'string' ? (request.config.sizing_system as string) : null;
@@ -69,8 +70,6 @@ export function RequestForm({ request, options, initialResponse, initialSelected
     }
   }
 
-  const deadlinePassed = !!request.deadline && new Date(request.deadline).getTime() < Date.now();
-
   return (
     <div className="glass-card rounded-xl2 p-5">
       <div className="flex items-start gap-3">
@@ -90,8 +89,9 @@ export function RequestForm({ request, options, initialResponse, initialSelected
           <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-white/40">
             {sizingSystem && <span className="rounded bg-white/10 px-1.5 py-0.5">{sizingSystem} sizing</span>}
             {request.deadline && (
-              <span className={cn(deadlinePassed && !response && 'text-sunset-300')}>
+              <span className={cn(deadlinePassed && 'text-sunset-300')}>
                 Deadline: {formatDate(request.deadline)}
+                {deadlinePassed && ' (passed)'}
               </span>
             )}
           </div>
@@ -102,7 +102,15 @@ export function RequestForm({ request, options, initialResponse, initialSelected
         <div className="mt-4 flex items-center gap-2 rounded-xl bg-white/5 p-3 text-sm text-white/70">
           <Lock size={15} />
           <span>
-            Locked in: <strong className="text-white">{answerSummary(request, response, options, selectedOptionIds)}</strong>
+            {response ? (
+              <>
+                Locked in: <strong className="text-white">{answerSummary(request, response, options, selectedOptionIds)}</strong>
+              </>
+            ) : deadlinePassed ? (
+              <span className="text-sunset-300">The deadline for this has passed — no answer was submitted.</span>
+            ) : (
+              'This can no longer be changed.'
+            )}
           </span>
         </div>
       ) : (

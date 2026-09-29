@@ -39,6 +39,10 @@ export async function POST(req: NextRequest) {
     return jsonError(403, 'This answer can no longer be changed.');
   }
 
+  if (typedRequest.deadline && new Date(typedRequest.deadline).getTime() < Date.now()) {
+    return jsonError(403, 'The deadline for this has passed.');
+  }
+
   const isMultiSelect = typedRequest.question_type === 'checkboxes' || typedRequest.question_type === 'multiple_choice';
   const isSingleOption = typedRequest.question_type === 'dropdown' || typedRequest.question_type === 'radio';
 

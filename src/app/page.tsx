@@ -88,35 +88,38 @@ export default async function LandingPage() {
         </section>
       )}
 
-      <div className="relative mx-auto max-w-md px-6 py-10">
+      <div className="relative mx-auto max-w-md rounded-t-3xl bg-white px-6 py-10">
         {/* What's inside preview */}
-        <div className="mb-3 flex items-center gap-2 text-white/60">
+        <div className="mb-3 flex items-center gap-2 text-slate-500">
           <MapPin size={14} />
           <p className="text-xs font-semibold uppercase tracking-wide">What&apos;s waiting for you inside</p>
         </div>
         <div className="mb-10 grid grid-cols-2 gap-3">
           {previewItems.map(({ icon: Icon, label }) => (
-            <div key={label} className="glass-card flex items-center gap-2.5 rounded-xl2 p-3.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/15 text-white">
+            <div
+              key={label}
+              className="flex items-center gap-2.5 rounded-xl2 border border-slate-200 bg-slate-50 p-3.5"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-ocean-100 text-ocean-700">
                 <Icon size={17} />
               </div>
-              <p className="text-sm font-medium text-white/90">{label}</p>
+              <p className="text-sm font-medium text-slate-900">{label}</p>
             </div>
           ))}
         </div>
 
         {/* Login */}
-        <div id="login" className="animate-fade-up glass-card rounded-xl2 p-6">
-          <h2 className="font-display text-xl font-semibold text-white">Enter the party</h2>
-          <p className="mt-1 text-sm text-white/70">
+        <div id="login" className="animate-fade-up rounded-xl2 border border-slate-200 bg-slate-50 p-6">
+          <h2 className="font-display text-xl font-semibold text-slate-900">Enter the party</h2>
+          <p className="mt-1 text-sm text-slate-600">
             Use the email address your invite came from — no password needed.
           </p>
           <LoginForm />
         </div>
 
-        <p className="mt-8 text-center text-xs text-white/50">
+        <p className="mt-8 text-center text-xs text-slate-500">
           Not on the list yet?{' '}
-          <Link href="/invitation" className="font-medium text-white underline decoration-white/40 underline-offset-2">
+          <Link href="/invitation" className="font-medium text-ocean-700 underline decoration-ocean-300 underline-offset-2">
             Request an invite
           </Link>
           .

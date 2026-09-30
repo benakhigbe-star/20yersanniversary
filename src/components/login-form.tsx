@@ -39,7 +39,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-5 space-y-3">
       <div>
-        <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-white/60">
+        <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
           Email address
         </label>
         <input
@@ -51,12 +51,12 @@ export function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="tap-target w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-base text-white placeholder-white/40 outline-none ring-ocean-300 transition focus:border-white/40 focus:ring-2"
+          className="tap-target w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder-slate-400 outline-none ring-ocean-300 transition focus:border-ocean-400 focus:ring-2"
         />
       </div>
 
       {message && (
-        <p className="rounded-lg bg-sunset-500/20 px-3 py-2 text-sm text-sunset-100" role="alert">
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
           {message}
         </p>
       )}
@@ -64,7 +64,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={status === 'loading' || !email}
-        className="tap-target w-full rounded-xl bg-white py-3 text-base font-semibold text-ocean-800 shadow-glow transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="tap-target w-full rounded-xl bg-ocean-600 py-3 text-base font-semibold text-white shadow-glow transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {status === 'loading' ? 'Checking the list…' : 'Enter Party'}
       </button>

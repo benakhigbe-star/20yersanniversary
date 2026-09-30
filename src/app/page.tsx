@@ -68,7 +68,7 @@ export default async function LandingPage() {
 
           {departureIso && (
             <div className="animate-fade-up mt-6" style={{ animationDelay: '140ms' }}>
-              <Countdown targetIso={departureIso} />
+              <Countdown targetIso={departureIso} variant="light" />
             </div>
           )}
         </div>
